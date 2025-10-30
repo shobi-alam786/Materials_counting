@@ -82,7 +82,7 @@
       border-color:var(--primary);
       box-shadow:0 0 0 3px rgba(25, 118, 210, 0.15);
     }
-    select{background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center;background-size:8px 10px;}
+    select{background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center}
     select[multiple]{height:120px;padding:8px}
 
     /* Scheme Checkboxes */
@@ -182,7 +182,7 @@
 
     /* Toast */
     .toast{
-      position:fixed;right:16px;bottom:16px;background:#333;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.25);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;z-index:2000;
+      position:fixed;right:16px;bottom:16px;background:#333;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.25);opacity:0;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease;
     }
     .toast.show{opacity:1;transform:translateY(0);}
 
@@ -209,7 +209,7 @@
     body.dark input[type="text"], body.dark input[type="number"], body.dark select, body.dark textarea, body.dark .material-form input[type="number"], body.dark .material-form .comment {
       background:var(--input-bg); color:var(--text); border:1px solid var(--border-color);
     }
-    body.dark select{ background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center; background-size:8px 10px; }
+    body.dark select{ background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center}
 
     /* small helpers */
     .muted{color:var(--text-muted);font-size:13px}
@@ -457,7 +457,7 @@
     // ------------- Utilities continued & Draft autosave -------------
     const DRAFT_KEY = 'materialDraft';
     const ENTRIES_KEY = 'materialEntries';
-    const LAST_FORM_KEY = 'lastForm'; 
+    const LAST_FORM_KEY = 'lastForm';
 
     function saveDraft() {
       try {
@@ -494,7 +494,11 @@
         }
         if (Array.isArray(draft.selectedMaterials) && draft.selectedMaterials.length) {
           const select = document.getElementById('materialsSelect');
-          Array.from(select.options).forEach(o => o.selected = draft.selectedMaterials.includes(o.value));
+          // Clear any previous selection first
+          Array.from(select.options).forEach(o => o.selected = false);
+          Array.from(select.options).forEach(o => {
+            if (draft.selectedMaterials.includes(o.value)) o.selected = true;
+          });
           // generate forms automatically if materials are present
           if (draft.selectedMaterials.length) generateMaterialForms();
         }
@@ -563,6 +567,8 @@
       document.getElementById('customMaterial').value = '';
       showToast('Custom material added: ' + name);
       saveDraft();
+      // Immediately create form for the newly added custom material
+      generateMaterialForms();
     }
 
     function generateMaterialForms(){
@@ -598,7 +604,12 @@
 
     function removeMaterialForm(idSafe){
       const container = document.getElementById('formsContainer');
-      const el = container.querySelector(`#req-${idSafe}`)?.closest('.material-form') || container.querySelector(`[data-mat-name][id*="${idSafe}"]`);
+      // find the material-form by looking for the input id
+      const reqInput = container.querySelector(`#req-${idSafe}`);
+      let el = null;
+      if (reqInput) el = reqInput.closest('.material-form');
+      // fallback: find by dataset attribute
+      if (!el) el = container.querySelector(`[data-mat-name][data-mat-name*="${idSafe}"]`) || container.querySelector(`[data-mat-name="${idSafe}"]`);
       if (el) {
         const matName = el.dataset.matName;
         el.remove();
@@ -627,77 +638,77 @@
       }
     }
 
-// ------------- Auto-format DRR with hyphen after 6 digits -------------
-function formatDRRCode() {
-  const drrInput = document.getElementById('drr');
-  let value = drrInput.value;
-  
-  // Store cursor position
-  const cursorStart = drrInput.selectionStart;
-  const cursorEnd = drrInput.selectionEnd;
-  
-  // Only format if pattern matches C013-X-
-  const match = value.match(/^(C013-[A-G]-)(.*)$/);
-  
-  if (match) {
-    const prefix = match[1]; // e.g., "C013-A-"
-    const numbers = match[2].replace(/[^0-9]/g, ''); // Remove all non-digits
+  // ------------- Auto-format DRR with hyphen after 6 digits -------------
+  function formatDRRCode() {
+    const drrInput = document.getElementById('drr');
+    let value = drrInput.value;
     
-    let formatted = prefix;
+    // Store cursor position
+    const cursorStart = drrInput.selectionStart;
+    const cursorEnd = drrInput.selectionEnd;
     
-    if (numbers.length === 0) {
-      formatted = prefix;
-    } else if (numbers.length <= 6) {
-      formatted = prefix + numbers;
-    } else {
-      // More than 6 digits: add hyphen after 6th digit
-      formatted = prefix + numbers.substring(0, 6) + '-' + numbers.substring(6);
-    }
+    // Only format if pattern matches C013-X-
+    const match = value.match(/^(C013-[A-G]-)(.*)$/);
     
-    // Only update if value actually changed
-    if (drrInput.value !== formatted) {
-      drrInput.value = formatted;
+    if (match) {
+      const prefix = match[1]; // e.g., "C013-A-"
+      const numbers = match[2].replace(/[^0-9]/g, ''); // Remove all non-digits
       
-      // Try to maintain cursor position
-      const newCursorPos = Math.min(cursorStart, formatted.length);
-      drrInput.setSelectionRange(newCursorPos, newCursorPos);
+      let formatted = prefix;
+      
+      if (numbers.length === 0) {
+        formatted = prefix;
+      } else if (numbers.length <= 6) {
+        formatted = prefix + numbers;
+      } else {
+        // More than 6 digits: add hyphen after 6th digit
+        formatted = prefix + numbers.substring(0, 6) + '-' + numbers.substring(6);
+      }
+      
+      // Only update if value actually changed
+      if (drrInput.value !== formatted) {
+        drrInput.value = formatted;
+        
+        // Try to maintain cursor position
+        const newCursorPos = Math.min(cursorStart, formatted.length);
+        drrInput.setSelectionRange(newCursorPos, newCursorPos);
+      }
     }
-  }
-  
-  saveDraft();
-}
-
-// ------------- Auto-generate DRR logic -------------
-function autoGenerateDRR() {
-  const tmSelect = document.getElementById('tm');
-  const drrInput = document.getElementById('drr');
-  const tm = tmSelect.value;
-  const drrPrefixes = {
-    "Ayaz": "C013-A-",
-    "Eliyes": "C013-B-",
-    "Sona Mia": "C013-C-",
-    "Arfat": "C013-D-",
-    "Ayub Khan": "C013-E-",
-    "Omer Farooq": "C013-F-",
-    "Nur Alom": "C013-G-"
-  };
-  
-  if (drrPrefixes[tm]) {
-    const current = drrInput.value || '';
-    const prefix = drrPrefixes[tm];
     
-    // Only set if empty or doesn't match current TM's prefix
-    if (!current || !current.startsWith(prefix.substring(0, 7))) {
-      drrInput.value = prefix;
-    }
-  } else {
-    // If TM is cleared, clear DRR
-    if (!tm) {
-      drrInput.value = '';
-    }
+    saveDraft();
   }
-  saveDraft();
-}
+
+  // ------------- Auto-generate DRR logic -------------
+  function autoGenerateDRR() {
+    const tmSelect = document.getElementById('tm');
+    const drrInput = document.getElementById('drr');
+    const tm = tmSelect.value;
+    const drrPrefixes = {
+      "Ayaz": "C013-A-",
+      "Eliyes": "C013-B-",
+      "Sona Mia": "C013-C-",
+      "Arfat": "C013-D-",
+      "Ayub Khan": "C013-E-",
+      "Omer Farooq": "C013-F-",
+      "Nur Alom": "C013-G-"
+    };
+    
+    if (drrPrefixes[tm]) {
+      const current = drrInput.value || '';
+      const prefix = drrPrefixes[tm];
+      
+      // Only set if empty or doesn't match current TM's prefix
+      if (!current || !current.startsWith(prefix.substring(0, 7))) {
+        drrInput.value = prefix;
+      }
+    } else {
+      // If TM is cleared, clear DRR
+      if (!tm) {
+        drrInput.value = '';
+      }
+    }
+    saveDraft();
+  }
 
     // ------------- Save / View / Export / Delete -------------
     function saveEntry(){
@@ -779,7 +790,7 @@ function autoGenerateDRR() {
       const out = document.getElementById('output');
       if (!arr.length){ out.innerHTML = '<div class="small">No saved entries yet.</div>'; return; }
       let html = `<div class="small">Saved entries: ${arr.length}</div>`;
-      html += '<div class="table-container"><table><thead><tr><th>Action</th><th>Checker</th><th>TM</th><th>Block</th><th>Sub</th><th>MRF</th><th>DRR</th><th>Scheme(s)</th><th>Material</th><th>Req.</th><th>Rec.</th><th>Used</th><th>Rem.</th><th>Comment</th><th>Date</th></tr></thead><tbody>';
+      html += '<div class="table-container"><table><thead><tr><th>Action</th><th>Checker</th><th>TM</th><th>Block</th><th>Sub</th><th>MRF</th><th>DRR</th><th>Scheme(s)</th><th>Material</th><th>Re[... omitted for brevity in table header]</th></tr></thead><tbody>';
       arr.slice().reverse().forEach(ent=>{
         ent.materials.forEach(mat=>{
           html += `<tr>
@@ -877,8 +888,9 @@ function autoGenerateDRR() {
       // Clear schemes checkboxes
       document.querySelectorAll('#schemeBox input[type=checkbox]').forEach(c=>c.checked=false);
       
-      // Clear material selection and forms
-      document.getElementById('materialsSelect').selectedIndex = -1;
+      // Clear material selection and forms (properly clear multi-select)
+      const matSelect = document.getElementById('materialsSelect');
+      if (matSelect) Array.from(matSelect.options).forEach(o => o.selected = false);
       document.getElementById('customMaterial').value = '';
       document.getElementById('formsContainer').innerHTML = '';
       
@@ -964,31 +976,52 @@ Generated by Field Material App 🚧
       window.open(whatsappUrl, '_blank');
     }
 
-// ------------- Init -------------
-(function init(){
-  try{
-    // On load, attempt to restore the Checker name from last save
-    const last = JSON.parse(localStorage.getItem(LAST_FORM_KEY) || '{}');
-    if (last.checker) {
-      document.getElementById('checker').value = last.checker;
-    }
-    
-    // Ensure block options are populated on load for a fresh start or draft restore
-    autoSelectBlock(); 
+  // ------------- Init -------------
+  (function init(){
+    try{
+      // On load, attempt to restore the Checker name from last save
+      const last = JSON.parse(localStorage.getItem(LAST_FORM_KEY) || '{}');
+      if (last.checker) {
+        document.getElementById('checker').value = last.checker;
+      }
+      
+      // Ensure block options are populated on load for a fresh start or draft restore
+      autoSelectBlock(); 
 
-    restoreDraft(); // This restores fields from DRAFT_KEY if present
+      restoreDraft(); // This restores fields from DRAFT_KEY if present
 
-    // Ensure DRR is formatted if checker/TM data was present
-    formatDRRCode();
-    
-    viewSavedEntries();
+      // Ensure DRR is formatted if checker/TM data was present
+      formatDRRCode();
+      
+      viewSavedEntries();
 
-    // Wire listeners - ensure they don't try to save to 'lastForm' if we want it blank
-    document.getElementById('checker').addEventListener('input', saveDraft, {passive:true});
-    document.getElementById('tm').addEventListener('change', saveDraft, {passive:true});
-    document.getElementById('drr').addEventListener('input', formatDRRCode, {passive:true}); 
-  }catch(e){ console.warn('init error', e); }
-})();
+      // Wire listeners - ensure they don't try to save to 'lastForm' if we want it blank
+      const checkerEl = document.getElementById('checker');
+      if (checkerEl) checkerEl.addEventListener('input', saveDraft, {passive:true});
+      const tmEl = document.getElementById('tm');
+      if (tmEl) tmEl.addEventListener('change', saveDraft, {passive:true});
+      const drrEl = document.getElementById('drr');
+      if (drrEl) drrEl.addEventListener('input', formatDRRCode, {passive:true}); 
+
+      // NEW: Auto-generate forms when selection changes
+      const materialsSelect = document.getElementById('materialsSelect');
+      if (materialsSelect) {
+        materialsSelect.addEventListener('change', function(e){
+          // Only generate forms if there is at least one selection
+          if (this.selectedOptions && this.selectedOptions.length) {
+            // Small timeout helps on some mobile browsers where UI selection state updates slightly later
+            setTimeout(()=> {
+              generateMaterialForms();
+            }, 50);
+          } else {
+            // If nothing selected, clear forms container
+            document.getElementById('formsContainer').innerHTML = '';
+          }
+          saveDraft();
+        }, {passive:true});
+      }
+    }catch(e){ console.warn('init error', e); }
+  })();
 
     // Expose a couple functions to global scope used by inline onclicks
     window.autoSelectBlock = autoSelectBlock;
@@ -998,17 +1031,7 @@ Generated by Field Material App 🚧
     window.generateMaterialForms = generateMaterialForms;
     window.saveEntry = saveEntry;
     window.viewSavedEntries = viewSavedEntries;
-    window.exportToExcel = exportToExcel;
-    window.deleteAllEntries = deleteAllEntries;
-    window.clearForm = clearForm;
-    window.exportJSON = exportJSON;
-    window.installApp = installApp;
-    window.closeInstallPrompt = closeInstallPrompt;
     window.removeMaterialForm = removeMaterialForm;
-    window.deleteSingleEntry = deleteSingleEntry;
-    window.saveLast = saveLast;
-    window.autoGenerateDRR = autoGenerateDRR;
-    window.saveAndSendWhatsApp = saveAndSendWhatsApp;
   </script>
 </body>
 </html>
