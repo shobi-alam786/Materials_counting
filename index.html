@@ -6,17 +6,17 @@
   <meta name="theme-color" content="#1976d2"/>
   <meta name="description" content="Field Material Management App - Track materials offline"/>
   <title>Field Material App 🚧</title>
-    <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icon-192.png">
   <style>
     :root{
-      --primary: #1976d2; /* Deep Blue */
-      --secondary: #4caf50; /* Green Success */
-      --danger: #d32f2f; /* Red Danger */
+      --primary: #1976d2;
+      --secondary: #4caf50;
+      --danger: #d32f2f;
       --text: #1a1a1a;
       --text-muted: #757575;
       --card-bg: #ffffff;
-      --bg: #f5f7fa; /* Light background for body */
+      --bg: #f5f7fa;
       --surface: #ffffff;
       --border-color: #e0e0e0;
       --input-bg: #f9f9f9;
@@ -25,7 +25,6 @@
       --radius: 12px;
     }
 
-    /* Base (Light) */
     *{box-sizing:border-box}
     body{
       font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -34,7 +33,7 @@
       padding:0;
       color:var(--text);
       transition: background .3s ease, color .3s ease;
-      -webkit-tap-highlight-color: transparent; /* Good for mobile */
+      -webkit-tap-highlight-color: transparent;
     }
     .wrap{
       max-width:900px;
@@ -57,7 +56,6 @@
     h1{font-size:24px;margin:12px 0 18px;text-align:center;color:var(--primary)}
     h2{font-size:18px;margin:0 0 12px;color:var(--text)}
 
-    /* Form and Grid */
     .grid{display:grid;grid-template-columns:1fr;gap:12px}
     @media (min-width: 900px) {
       .wrap { margin: 18px auto; border-radius: var(--radius); }
@@ -82,15 +80,90 @@
       border-color:var(--primary);
       box-shadow:0 0 0 3px rgba(25, 118, 210, 0.15);
     }
-    select{background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center}
-    select[multiple]{height:120px;padding:8px}
+    select:not([multiple]){
+        background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center;
+        background-size:8px 10px;
+    }
 
-    /* Scheme Checkboxes */
+    /* Custom Multi-Select Dropdown */
+    .custom-multiselect {
+        position: relative;
+        width: 100%;
+    }
+    .custom-multiselect-header {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--input-bg);
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: border-color .2s ease;
+        user-select: none;
+    }
+    .custom-multiselect-header:hover {
+        border-color: var(--primary);
+    }
+    .custom-multiselect-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 300px;
+        overflow-y: auto;
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        border-radius: 8px;
+        margin-top: 4px;
+        box-shadow: var(--shadow-md);
+        z-index: 100;
+        display: none;
+    }
+    .custom-multiselect-dropdown.active {
+        display: block;
+    }
+    .custom-multiselect-option {
+        padding: 10px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background .15s ease;
+        user-select: none;
+    }
+    .custom-multiselect-option:hover {
+        background: var(--input-bg);
+    }
+    .custom-multiselect-option input[type="checkbox"] {
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        cursor: pointer;
+    }
+    .custom-multiselect-option label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 400;
+        color: var(--text);
+    }
+    .multiselect-count {
+        background: var(--primary);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
     .scheme-box{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:8px 0}
     .scheme-box label{font-weight:400;margin-bottom:0;display:flex;align-items:center;color:var(--text)}
     .scheme-box input[type="checkbox"]{margin-right:6px;width:18px;height:18px;min-width:18px;min-height:18px}
 
-    /* Buttons */
     .topbar{
       display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:8px;
       position:relative;
@@ -116,7 +189,6 @@
     button.danger{background:var(--danger)}
     button.danger:hover{background:#b71c1c}
 
-    /* Materials Section */
     .materials-header{font-weight:600;margin-bottom:10px;font-size:14px;color:var(--text-muted)}
     .material-controls{display:flex;flex-direction:column;gap:12px;margin-top:12px}
     .material-controls button{flex-grow:0}
@@ -150,7 +222,6 @@
     .material-form .comment{grid-column:1/-1;margin-top:4px}
     .material-form .comment-group{grid-column:1/-1}
 
-    /* Actions and Output */
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;justify-content:center}
     .actions button{min-width:48%;}
     @media (min-width: 600px){
@@ -164,7 +235,6 @@
     th,td{border:1px solid var(--border-color);padding:8px;text-align:left;vertical-align:top}
     th{background:var(--input-bg);font-weight:600}
 
-    /* Install Prompt */
     .install-prompt{
       position:fixed;bottom:0;left:0;right:0;
       background:var(--primary);color:#fff;
@@ -180,13 +250,11 @@
     }
     .install-prompt .close{background:transparent;color:#fff;padding:4px 8px;font-size:20px;line-height:1;margin-left:auto;}
 
-    /* Toast */
     .toast{
-      position:fixed;right:16px;bottom:16px;background:#333;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.25);opacity:0;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease;
+      position:fixed;right:16px;bottom:16px;background:#333;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.25);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;z-index:2000;
     }
     .toast.show{opacity:1;transform:translateY(0);}
 
-    /* Dark Mode styles (Revised) */
     body.dark{
       --primary: #4caf50;
       --secondary: #1976d2;
@@ -209,9 +277,8 @@
     body.dark input[type="text"], body.dark input[type="number"], body.dark select, body.dark textarea, body.dark .material-form input[type="number"], body.dark .material-form .comment {
       background:var(--input-bg); color:var(--text); border:1px solid var(--border-color);
     }
-    body.dark select{ background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center}
+    body.dark select:not([multiple]){ background:var(--input-bg) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 12px center; background-size:8px 10px; }
 
-    /* small helpers */
     .muted{color:var(--text-muted);font-size:13px}
     .flex{display:flex;gap:8px;align-items:center}
     .small{font-size:13px;color:var(--text-muted)}
@@ -263,6 +330,7 @@
         </div>
 
         <div>
+          <label for="sub">Sub-Block</label>
           <select id="sub" onchange="autoGenerateDRR()"><option value="">-- Select Sub --</option></select>
         </div>
 
@@ -294,26 +362,85 @@
     <div class="card-section" aria-label="Materials Selection and Forms">
       <h2>Material Tracking</h2>
       <label class="materials-header">Select Materials</label>
-      <select id="materialsSelect" multiple aria-label="Materials list">
-        <option>Cement</option>
-        <option>Bricks</option>
-        <option>Brick Chips</option>
-        <option>Borak Bamboo</option>
-        <option>Sand</option>
-        <option>Muli Bamboo</option>
-        <option>3mm Rope</option>
-        <option>6mm Rope</option>
-        <option>Gi wire</option>
-        <option>Jute Bag</option>
-        <option>Geo Roll</option>
-        <option>Geo Bag</option>
-        <option>Rebar 8mm</option>
-        <option>Rebar 10mm</option>
-        <option>Rebar 12mm</option>
-        <option>Rebar 16mm</option>
-        <option>Permeable block</option>
-      </select>
-      <div class="hint">Tip: Tap multiple materials to select (mobile). You can add custom materials below.</div>
+      
+      <div class="custom-multiselect" id="customMultiselect">
+        <div class="custom-multiselect-header" id="multiselectHeader">
+          <span id="multiselectPlaceholder">Click to select materials...</span>
+          <span class="multiselect-count" id="multiselectCount" style="display:none;">0</span>
+        </div>
+        <div class="custom-multiselect-dropdown" id="multiselectDropdown">
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Cement" id="mat-cement">
+            <label for="mat-cement">Cement</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Bricks" id="mat-bricks">
+            <label for="mat-bricks">Bricks</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Brick Chips" id="mat-brickchips">
+            <label for="mat-brickchips">Brick Chips</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Borak Bamboo" id="mat-borak">
+            <label for="mat-borak">Borak Bamboo</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Sand" id="mat-sand">
+            <label for="mat-sand">Sand</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Muli Bamboo" id="mat-muli">
+            <label for="mat-muli">Muli Bamboo</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="3mm Rope" id="mat-3mmrope">
+            <label for="mat-3mmrope">3mm Rope</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="6mm Rope" id="mat-6mmrope">
+            <label for="mat-6mmrope">6mm Rope</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Gi wire" id="mat-giwire">
+            <label for="mat-giwire">Gi wire</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Jute Bag" id="mat-jutebag">
+            <label for="mat-jutebag">Jute Bag</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Geo Roll" id="mat-georoll">
+            <label for="mat-georoll">Geo Roll</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Geo Bag" id="mat-geobag">
+            <label for="mat-geobag">Geo Bag</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Rebar 8mm" id="mat-rebar8">
+            <label for="mat-rebar8">Rebar 8mm</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Rebar 10mm" id="mat-rebar10">
+            <label for="mat-rebar10">Rebar 10mm</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Rebar 12mm" id="mat-rebar12">
+            <label for="mat-rebar12">Rebar 12mm</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Rebar 16mm" id="mat-rebar16">
+            <label for="mat-rebar16">Rebar 16mm</label>
+          </div>
+          <div class="custom-multiselect-option">
+            <input type="checkbox" value="Permeable block" id="mat-permeable">
+            <label for="mat-permeable">Permeable block</label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hint">Tip: Click to open dropdown and select multiple materials. You can add custom materials below.</div>
 
       <input id="customMaterial" type="text" placeholder="Add custom material name" style="margin-top:12px">
       <div class="material-controls" style="margin-top:8px">
@@ -342,6 +469,58 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
+    // ------------- Custom Multi-Select Logic -------------
+    const multiselectHeader = document.getElementById('multiselectHeader');
+    const multiselectDropdown = document.getElementById('multiselectDropdown');
+    const multiselectPlaceholder = document.getElementById('multiselectPlaceholder');
+    const multiselectCount = document.getElementById('multiselectCount');
+
+    // Toggle dropdown
+    multiselectHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      multiselectDropdown.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('customMultiselect').contains(e.target)) {
+        multiselectDropdown.classList.remove('active');
+      }
+    });
+
+    // Handle checkbox changes
+    function updateMultiselectDisplay() {
+      const checkboxes = multiselectDropdown.querySelectorAll('input[type="checkbox"]');
+      const selected = Array.from(checkboxes).filter(cb => cb.checked);
+      
+      if (selected.length === 0) {
+        multiselectPlaceholder.textContent = 'Click to select materials...';
+        multiselectCount.style.display = 'none';
+      } else if (selected.length === 1) {
+        multiselectPlaceholder.textContent = selected[0].value;
+        multiselectCount.style.display = 'none';
+      } else if (selected.length <= 3) {
+        multiselectPlaceholder.textContent = selected.map(cb => cb.value).join(', ');
+        multiselectCount.style.display = 'none';
+      } else {
+        multiselectPlaceholder.textContent = selected.map(cb => cb.value).slice(0, 2).join(', ') + '...';
+        multiselectCount.textContent = selected.length;
+        multiselectCount.style.display = 'inline-block';
+      }
+      
+      saveDraft();
+    }
+
+    // Wire all checkboxes
+    multiselectDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', updateMultiselectDisplay);
+    });
+
+    // Prevent dropdown close when clicking inside
+    multiselectDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     // ------------- Utilities -------------
     const toastEl = document.getElementById('toast');
     function showToast(text, ms=2500){
@@ -358,7 +537,7 @@
       return (s||'').toString().replace(/\s+/g,'_').replace(/[^A-Za-z0-9_\-]/g,'');
     }
 
-    // ------------- Theme handling (Sun / Moon toggle) -------------
+    // ------------- Theme handling -------------
     const themeBtn = document.getElementById('themeToggle');
     (function applySavedTheme(){
       const theme = localStorage.getItem('theme') || 'light';
@@ -421,10 +600,8 @@
       if (p) { p.style.display = 'none'; p.setAttribute('aria-hidden','true'); }
     }
 
-    // --- SERVICE WORKER REGISTRATION (Essential for offline) ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // The sw.js file must be created alongside this HTML file for full PWA offline support
         navigator.serviceWorker.register('sw.js').then(reg => {
           console.log('Service Worker registered');
         }).catch(err => {
@@ -454,10 +631,10 @@
       "G": ["G1","G2","G3","G4","G5"]
     }
 
-    // ------------- Utilities continued & Draft autosave -------------
+    // ------------- Storage Keys -------------
     const DRAFT_KEY = 'materialDraft';
     const ENTRIES_KEY = 'materialEntries';
-    const LAST_FORM_KEY = 'lastForm';
+    const LAST_FORM_KEY = 'lastForm'; 
 
     function saveDraft() {
       try {
@@ -470,7 +647,7 @@
           drr: document.getElementById('drr').value,
           otherScheme: document.getElementById('otherScheme').value,
           schemes: Array.from(document.querySelectorAll('#schemeBox input[type=checkbox]')).filter(i=>i.checked).map(i=>i.value),
-          selectedMaterials: Array.from(document.getElementById('materialsSelect').selectedOptions).map(o=>o.value),
+          selectedMaterials: getSelectedMaterials(),
         };
         localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
       } catch (e) {
@@ -492,14 +669,13 @@
         if (Array.isArray(draft.schemes) && draft.schemes.length) {
           document.querySelectorAll('#schemeBox input[type=checkbox]').forEach(c=>c.checked = draft.schemes.includes(c.value));
         }
+        
         if (Array.isArray(draft.selectedMaterials) && draft.selectedMaterials.length) {
-          const select = document.getElementById('materialsSelect');
-          // Clear any previous selection first
-          Array.from(select.options).forEach(o => o.selected = false);
-          Array.from(select.options).forEach(o => {
-            if (draft.selectedMaterials.includes(o.value)) o.selected = true;
+          const checkboxes = multiselectDropdown.querySelectorAll('input[type="checkbox"]');
+          checkboxes.forEach(cb => {
+            cb.checked = draft.selectedMaterials.includes(cb.value);
           });
-          // generate forms automatically if materials are present
+          updateMultiselectDisplay();
           if (draft.selectedMaterials.length) generateMaterialForms();
         }
       } catch (e) {
@@ -508,21 +684,19 @@
     }
 
     // Autosave draft on inputs
-    ['checker','tm','block','sub','mrf','drr','otherScheme','materialsSelect'].forEach(id=>{
+    ['checker','tm','block','sub','mrf','drr','otherScheme'].forEach(id=>{
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener('input', saveDraft);
       el.addEventListener('change', saveDraft);
     });
-    // Save scheme checkbox changes
     document.querySelectorAll('#schemeBox input[type=checkbox]').forEach(c=>c.addEventListener('change', saveDraft));
 
-    // ------------- Block/Sub helpers (complete) -------------
+    // ------------- Block/Sub helpers -------------
     function autoSelectBlock(){
       const tm = document.getElementById('tm').value;
       const blockEl = document.getElementById('block');
       blockEl.innerHTML = '<option value="">-- Select Block --</option>';
-      // populate all blocks
       allBlocks.forEach(b=>{
         const opt = document.createElement('option');
         opt.value = b; opt.textContent = b;
@@ -535,7 +709,7 @@
     }
 
     function updateBlocks(){
-      // placeholder kept for compatibility with onchange attribute
+      // placeholder for compatibility
     }
 
     function updateSubs(){
@@ -550,33 +724,110 @@
         });
       }
       saveDraft();
-      // Clear DRR when block changes (user needs to select sub again)
       document.getElementById('drr').value = '';
     }
 
+    // ------------- DRR Auto-format -------------
+    function formatDRRCode() {
+      const drrInput = document.getElementById('drr');
+      let value = drrInput.value;
+      
+      const cursorStart = drrInput.selectionStart;
+      const cursorEnd = drrInput.selectionEnd;
+      
+      const match = value.match(/^(C013-[A-G]-)(.*)$/);
+      
+      if (match) {
+        const prefix = match[1];
+        const numbers = match[2].replace(/[^0-9]/g, '');
+        
+        let formatted = prefix;
+        
+        if (numbers.length === 0) {
+          formatted = prefix;
+        } else if (numbers.length <= 6) {
+          formatted = prefix + numbers;
+        } else {
+          formatted = prefix + numbers.substring(0, 6) + '-' + numbers.substring(6);
+        }
+        
+        if (drrInput.value !== formatted) {
+          drrInput.value = formatted;
+          const newCursorPos = Math.min(cursorStart, formatted.length);
+          drrInput.setSelectionRange(newCursorPos, newCursorPos);
+        }
+      }
+      
+      saveDraft();
+    }
+
+    function autoGenerateDRR() {
+      const tmSelect = document.getElementById('tm');
+      const drrInput = document.getElementById('drr');
+      const tm = tmSelect.value;
+      const drrPrefixes = {
+        "Ayaz": "C013-A-",
+        "Eliyes": "C013-B-",
+        "Sona Mia": "C013-C-",
+        "Arfat": "C013-D-",
+        "Ayub Khan": "C013-E-",
+        "Omer Farooq": "C013-F-",
+        "Nur Alom": "C013-G-"
+      };
+      
+      if (drrPrefixes[tm]) {
+        const current = drrInput.value || '';
+        const prefix = drrPrefixes[tm];
+        
+        if (!current || !current.startsWith(prefix.substring(0, 7))) {
+          drrInput.value = prefix;
+        }
+      } else {
+        if (!tm) {
+          drrInput.value = '';
+        }
+      }
+      saveDraft();
+    }
+
     // ------------- Materials handling -------------
+    function getSelectedMaterials() {
+      const checkboxes = multiselectDropdown.querySelectorAll('input[type="checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
     function addCustomMaterial(){
       const name = document.getElementById('customMaterial').value.trim();
       if (!name){ alert('Enter custom material name'); return; }
-      const select = document.getElementById('materialsSelect');
-      const exists = Array.from(select.options).some(o => o.value.toLowerCase() === name.toLowerCase());
+      
+      const existing = multiselectDropdown.querySelectorAll('input[type="checkbox"]');
+      const exists = Array.from(existing).some(cb => cb.value.toLowerCase() === name.toLowerCase());
       if (exists){ alert('Material already exists'); document.getElementById('customMaterial').value = ''; return; }
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name + ' (custom)'; opt.selected = true;
-      select.appendChild(opt);
+      
+      const idSafe = sanitizeId(name);
+      const div = document.createElement('div');
+      div.className = 'custom-multiselect-option';
+      div.innerHTML = `
+        <input type="checkbox" value="${escapeHtml(name)}" id="mat-custom-${idSafe}" checked>
+        <label for="mat-custom-${idSafe}">${escapeHtml(name)} (custom)</label>
+      `;
+      
+      const checkbox = div.querySelector('input');
+      checkbox.addEventListener('change', updateMultiselectDisplay);
+      
+      multiselectDropdown.appendChild(div);
       document.getElementById('customMaterial').value = '';
+      updateMultiselectDisplay();
       showToast('Custom material added: ' + name);
-      saveDraft();
-      // Immediately create form for the newly added custom material
-      generateMaterialForms();
     }
 
     function generateMaterialForms(){
-      const select = document.getElementById('materialsSelect');
-      const selected = Array.from(select.selectedOptions).map(o => o.value);
+      const selected = getSelectedMaterials();
       const container = document.getElementById('formsContainer');
       container.innerHTML = '';
+      
       if (selected.length === 0){ alert('Select at least one material'); return; }
+      
       selected.forEach(mat => {
         const idSafe = sanitizeId(mat);
         const div = document.createElement('div');
@@ -593,29 +844,28 @@
             <button type="button" class="ghost" onclick="removeMaterialForm('${idSafe}')">Remove</button>
           </div>
         `;
-        // wire events
         div.querySelectorAll('.received, .used').forEach(i => i.addEventListener('input', ()=>calculateRemaining(div)));
         div.querySelectorAll('input').forEach(i => i.addEventListener('input', saveDraft));
         container.appendChild(div);
       });
+      
       showToast(selected.length + ' material form(s) generated.');
       saveDraft();
     }
 
     function removeMaterialForm(idSafe){
       const container = document.getElementById('formsContainer');
-      // find the material-form by looking for the input id
-      const reqInput = container.querySelector(`#req-${idSafe}`);
-      let el = null;
-      if (reqInput) el = reqInput.closest('.material-form');
-      // fallback: find by dataset attribute
-      if (!el) el = container.querySelector(`[data-mat-name][data-mat-name*="${idSafe}"]`) || container.querySelector(`[data-mat-name="${idSafe}"]`);
+      const el = container.querySelector(`#req-${idSafe}`)?.closest('.material-form');
       if (el) {
         const matName = el.dataset.matName;
         el.remove();
-        // also unselect material in select list
-        const select = document.getElementById('materialsSelect');
-        Array.from(select.options).forEach(o => { if (o.value === matName) o.selected = false; });
+        const checkboxes = multiselectDropdown.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => { 
+          if (cb.value === matName) {
+            cb.checked = false;
+            updateMultiselectDisplay();
+          }
+        });
         showToast('Removed form for: ' + matName);
         saveDraft();
       }
@@ -637,78 +887,6 @@
         remainingInput.value = Number.isInteger(rem) ? rem : rem.toFixed(2);
       }
     }
-
-  // ------------- Auto-format DRR with hyphen after 6 digits -------------
-  function formatDRRCode() {
-    const drrInput = document.getElementById('drr');
-    let value = drrInput.value;
-    
-    // Store cursor position
-    const cursorStart = drrInput.selectionStart;
-    const cursorEnd = drrInput.selectionEnd;
-    
-    // Only format if pattern matches C013-X-
-    const match = value.match(/^(C013-[A-G]-)(.*)$/);
-    
-    if (match) {
-      const prefix = match[1]; // e.g., "C013-A-"
-      const numbers = match[2].replace(/[^0-9]/g, ''); // Remove all non-digits
-      
-      let formatted = prefix;
-      
-      if (numbers.length === 0) {
-        formatted = prefix;
-      } else if (numbers.length <= 6) {
-        formatted = prefix + numbers;
-      } else {
-        // More than 6 digits: add hyphen after 6th digit
-        formatted = prefix + numbers.substring(0, 6) + '-' + numbers.substring(6);
-      }
-      
-      // Only update if value actually changed
-      if (drrInput.value !== formatted) {
-        drrInput.value = formatted;
-        
-        // Try to maintain cursor position
-        const newCursorPos = Math.min(cursorStart, formatted.length);
-        drrInput.setSelectionRange(newCursorPos, newCursorPos);
-      }
-    }
-    
-    saveDraft();
-  }
-
-  // ------------- Auto-generate DRR logic -------------
-  function autoGenerateDRR() {
-    const tmSelect = document.getElementById('tm');
-    const drrInput = document.getElementById('drr');
-    const tm = tmSelect.value;
-    const drrPrefixes = {
-      "Ayaz": "C013-A-",
-      "Eliyes": "C013-B-",
-      "Sona Mia": "C013-C-",
-      "Arfat": "C013-D-",
-      "Ayub Khan": "C013-E-",
-      "Omer Farooq": "C013-F-",
-      "Nur Alom": "C013-G-"
-    };
-    
-    if (drrPrefixes[tm]) {
-      const current = drrInput.value || '';
-      const prefix = drrPrefixes[tm];
-      
-      // Only set if empty or doesn't match current TM's prefix
-      if (!current || !current.startsWith(prefix.substring(0, 7))) {
-        drrInput.value = prefix;
-      }
-    } else {
-      // If TM is cleared, clear DRR
-      if (!tm) {
-        drrInput.value = '';
-      }
-    }
-    saveDraft();
-  }
 
     // ------------- Save / View / Export / Delete -------------
     function saveEntry(){
@@ -768,20 +946,13 @@
       arr.push(entry);
       localStorage.setItem(ENTRIES_KEY, JSON.stringify(arr));
 
-      // 🌟 FIX: Save ONLY the Checker field to LAST_FORM_KEY before clearing
       localStorage.setItem(LAST_FORM_KEY, JSON.stringify({ checker: checker }));
-
-      // Clear draft after saving
       localStorage.removeItem(DRAFT_KEY);
 
       showToast('Entry saved locally. Total entries: ' + arr.length);
-      
-      // AUTO CLEAR FORM AFTER SAVE
       clearForm(); 
-      
       viewSavedEntries();
 
-      // Return the saved entry object for use in other functions (like WhatsApp send)
       return entry;
     }
 
@@ -790,7 +961,7 @@
       const out = document.getElementById('output');
       if (!arr.length){ out.innerHTML = '<div class="small">No saved entries yet.</div>'; return; }
       let html = `<div class="small">Saved entries: ${arr.length}</div>`;
-      html += '<div class="table-container"><table><thead><tr><th>Action</th><th>Checker</th><th>TM</th><th>Block</th><th>Sub</th><th>MRF</th><th>DRR</th><th>Scheme(s)</th><th>Material</th><th>Re[... omitted for brevity in table header]</th></tr></thead><tbody>';
+      html += '<div class="table-container"><table><thead><tr><th>Action</th><th>Checker</th><th>TM</th><th>Block</th><th>Sub</th><th>MRF</th><th>DRR</th><th>Scheme(s)</th><th>Material</th><th>Req.</th><th>Rec.</th><th>Used</th><th>Rem.</th><th>Comment</th><th>Date</th></tr></thead><tbody>';
       arr.slice().reverse().forEach(ent=>{
         ent.materials.forEach(mat=>{
           html += `<tr>
@@ -865,59 +1036,41 @@
       viewSavedEntries();
     }
 
-    // 🌟 FIX: clearForm now restores the Checker name only
     function clearForm(){
-      // Retrieve the last saved values
       const last = JSON.parse(localStorage.getItem(LAST_FORM_KEY) || '{}');
       
-      // RESTORE Checker name
       document.getElementById('checker').value = last.checker || ''; 
-      
-      // Clear TM and the rest of the form fields
       document.getElementById('tm').value = '';
-      
-      // Reset Block and Sub options/values
-      document.getElementById('block').innerHTML = '<option value="">-- Select Block --</option>'; // Clears block options
-      document.getElementById('sub').innerHTML = '<option value="">-- Select Sub --</option>'; // Clears sub options
-      
-      // Clear detail fields
+      document.getElementById('block').innerHTML = '<option value="">-- Select Block --</option>';
+      document.getElementById('sub').innerHTML = '<option value="">-- Select Sub --</option>';
       document.getElementById('mrf').value = '';
       document.getElementById('drr').value = '';
       document.getElementById('otherScheme').value = '';
       
-      // Clear schemes checkboxes
       document.querySelectorAll('#schemeBox input[type=checkbox]').forEach(c=>c.checked=false);
       
-      // Clear material selection and forms (properly clear multi-select)
-      const matSelect = document.getElementById('materialsSelect');
-      if (matSelect) Array.from(matSelect.options).forEach(o => o.selected = false);
+      const checkboxes = multiselectDropdown.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
+      updateMultiselectDisplay();
+      
       document.getElementById('customMaterial').value = '';
       document.getElementById('formsContainer').innerHTML = '';
-      
-      // Update output display
       document.getElementById('output').innerHTML = '<div class="small">No saved entries yet.</div>';
       
-      // Clear any incomplete draft data
       localStorage.removeItem(DRAFT_KEY);
 
       showToast('Form cleared');
     }
-    // ⭐ END OF REVISED clearForm function ⭐
 
-
-    // A helper function for saving last used values - (Kept for compatibility with init(), but saveEntry now handles LAST_FORM_KEY)
     function saveLast(field) {
-        // We only save to lastForm in saveEntry now, so this is just a placeholder
+      // Placeholder for compatibility
     }
 
-    // ------------- WHATSAPP SEND LOGIC (Updated to bold Block and Sub) -------------
-    
+    // ------------- WhatsApp Send Logic -------------
     function generateWhatsAppText(entry) {
       if (!entry) return null;
 
-      // 1. Generate Material Lines with Serial Numbers
       const materialLines = entry.materials.map((mat, index) => {
-        // Format serial number as 01, 02, etc.
         const serial = (index + 1).toString().padStart(2, '0'); 
         
         let line = `*${serial} ${mat.name}*`;
@@ -925,11 +1078,10 @@
         if (mat.received) line += ` | Rec: ${mat.received}`;
         if (mat.used) line += ` | Used: ${mat.used}`;
         if (mat.remaining) line += ` | Rem: ${mat.remaining}`;
-        if (mat.comment) line += ` | Comment: ${mat.comment}`;
+        if (mat.comment) line += ` | *Comment:* ${mat.comment}`; 
         return line.trim();
       }).join('\n');
 
-      // 2. Format Header Sections
       const schemesText = (entry.schemes && entry.schemes.length > 0)
         ? `*Scheme(s):* ${entry.schemes.join(', ')}`
         : '';
@@ -937,7 +1089,6 @@
       const mrfText = entry.mrf ? `*MRF:* ${entry.mrf}\n` : '';
       const drrText = entry.drr ? `*DRR:* ${entry.drr}\n` : '';
 
-      // 3. Assemble the final text.
       const text = `
 *✅ Field Material Entry*
 ----------------------------------
@@ -956,74 +1107,42 @@ Generated by Field Material App 🚧
     }
 
     function saveAndSendWhatsApp() {
-      // 1. Save the entry first. saveEntry returns the entry object on success.
       const entry = saveEntry();
 
       if (!entry) {
-        // saveEntry would have shown an alert if validation failed
         return;
       }
 
-      // 2. Generate the message
       const text = generateWhatsAppText(entry);
       if (!text) {
         showToast('Could not generate WhatsApp message.');
         return;
       }
 
-      // 3. Open WhatsApp link (using the web/app share scheme)
       const whatsappUrl = `https://wa.me/?text=${text}`;
       window.open(whatsappUrl, '_blank');
     }
 
-  // ------------- Init -------------
-  (function init(){
-    try{
-      // On load, attempt to restore the Checker name from last save
-      const last = JSON.parse(localStorage.getItem(LAST_FORM_KEY) || '{}');
-      if (last.checker) {
-        document.getElementById('checker').value = last.checker;
-      }
-      
-      // Ensure block options are populated on load for a fresh start or draft restore
-      autoSelectBlock(); 
+    // ------------- Init -------------
+    (function init(){
+      try{
+        const last = JSON.parse(localStorage.getItem(LAST_FORM_KEY) || '{}');
+        if (last.checker) {
+          document.getElementById('checker').value = last.checker;
+        }
+        
+        autoSelectBlock(); 
+        restoreDraft();
+        formatDRRCode();
+        viewSavedEntries();
 
-      restoreDraft(); // This restores fields from DRAFT_KEY if present
+        document.getElementById('checker').addEventListener('input', saveDraft, {passive:true});
+        document.getElementById('tm').addEventListener('change', saveDraft, {passive:true});
+        document.getElementById('drr').addEventListener('input', formatDRRCode, {passive:true}); 
+      }catch(e){ console.warn('init error', e); }
+    })();
 
-      // Ensure DRR is formatted if checker/TM data was present
-      formatDRRCode();
-      
-      viewSavedEntries();
-
-      // Wire listeners - ensure they don't try to save to 'lastForm' if we want it blank
-      const checkerEl = document.getElementById('checker');
-      if (checkerEl) checkerEl.addEventListener('input', saveDraft, {passive:true});
-      const tmEl = document.getElementById('tm');
-      if (tmEl) tmEl.addEventListener('change', saveDraft, {passive:true});
-      const drrEl = document.getElementById('drr');
-      if (drrEl) drrEl.addEventListener('input', formatDRRCode, {passive:true}); 
-
-      // NEW: Auto-generate forms when selection changes
-      const materialsSelect = document.getElementById('materialsSelect');
-      if (materialsSelect) {
-        materialsSelect.addEventListener('change', function(e){
-          // Only generate forms if there is at least one selection
-          if (this.selectedOptions && this.selectedOptions.length) {
-            // Small timeout helps on some mobile browsers where UI selection state updates slightly later
-            setTimeout(()=> {
-              generateMaterialForms();
-            }, 50);
-          } else {
-            // If nothing selected, clear forms container
-            document.getElementById('formsContainer').innerHTML = '';
-          }
-          saveDraft();
-        }, {passive:true});
-      }
-    }catch(e){ console.warn('init error', e); }
-  })();
-
-    // Expose a couple functions to global scope used by inline onclicks
+    // Expose functions to global scope
     window.autoSelectBlock = autoSelectBlock;
     window.updateBlocks = updateBlocks;
     window.updateSubs = updateSubs;
@@ -1031,7 +1150,17 @@ Generated by Field Material App 🚧
     window.generateMaterialForms = generateMaterialForms;
     window.saveEntry = saveEntry;
     window.viewSavedEntries = viewSavedEntries;
+    window.exportToExcel = exportToExcel;
+    window.deleteAllEntries = deleteAllEntries;
+    window.clearForm = clearForm;
+    window.exportJSON = exportJSON;
+    window.installApp = installApp;
+    window.closeInstallPrompt = closeInstallPrompt;
     window.removeMaterialForm = removeMaterialForm;
+    window.deleteSingleEntry = deleteSingleEntry;
+    window.saveLast = saveLast;
+    window.autoGenerateDRR = autoGenerateDRR;
+    window.saveAndSendWhatsApp = saveAndSendWhatsApp;
   </script>
 </body>
 </html>
